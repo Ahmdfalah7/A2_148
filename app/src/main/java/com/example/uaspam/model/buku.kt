@@ -20,5 +20,10 @@ data class BukuResponse(
     val data: List<Buku>
 )
 
-
+@Serializable
+data class BukuDetailResponse(
+    val status: Boolean,
+    val message: String,
+    val data: Buku
+)
 
