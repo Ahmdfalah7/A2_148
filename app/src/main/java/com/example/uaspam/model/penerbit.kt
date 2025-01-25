@@ -9,3 +9,18 @@ data class Penerbit(
     val alamat_penerbit: String,
     val telepon_penerbit: String
 )
+
+@Serializable
+data class PenerbitResponse(
+    val status: Boolean,
+    val message: String,
+    val data: List<Penerbit>
+)
+
+
+@Serializable
+data class PenerbitDetailResponse(
+    val status: Boolean,
+    val message: String,
+    val data: Penerbit
+)
