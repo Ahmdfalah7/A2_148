@@ -50,3 +50,39 @@ class NetworkBukuRepository(
     }
 }
 
+interface KategoriRepository {
+    suspend fun getKategori(): KategoriResponse
+    suspend fun insertKategori(kategori: Kategori)
+    suspend fun updateKategori(id: Int, kategori: Kategori)
+    suspend fun deleteKategori(id: Int)
+    suspend fun getKategoriById(id: Int): Kategori
+}
+
+class NetworkKategoriRepository(
+    private val kategoriApiService: KategoriService
+) : KategoriRepository {
+    override suspend fun insertKategori(kategori: Kategori) {
+        kategoriApiService.insertKategori(kategori)
+    }
+
+    override suspend fun updateKategori(id: Int, kategori: Kategori) {
+        kategoriApiService.updateKategori(id, kategori)
+    }
+
+    override suspend fun deleteKategori(id: Int) {
+        try {
+            kategoriApiService.deleteKategori(id)
+        } catch (e: Exception) {
+            throw IOException("Failed to delete kategori", e)
+        }
+    }
+
+    override suspend fun getKategori(): KategoriResponse {
+        return kategoriApiService.getKategori()
+    }
+
+    override suspend fun getKategoriById(id: Int): Kategori {
+        return kategoriApiService.getKategoriById(id).data
+    }
+}
+
