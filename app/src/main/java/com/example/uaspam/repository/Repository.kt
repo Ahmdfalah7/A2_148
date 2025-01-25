@@ -86,3 +86,55 @@ class NetworkKategoriRepository(
     }
 }
 
+interface PenerbitRepository {
+    suspend fun getPenerbit(): PenerbitResponse
+    suspend fun insertPenerbit(penerbit: Penerbit)
+    suspend fun updatePenerbit(id: Int, penerbit: Penerbit)
+    suspend fun deletePenerbit(id: Int)
+    suspend fun getPenerbitById(id: Int): Penerbit
+}
+
+class NetworkPenerbitRepository(
+    private val penerbitApiService: PenerbitService
+) : PenerbitRepository {
+    override suspend fun insertPenerbit(penerbit: Penerbit) {
+        try {
+            penerbitApiService.insertPenerbit(penerbit)
+        } catch (e: Exception) {
+            throw IOException("Failed to insert penerbit", e)
+        }
+    }
+
+    override suspend fun updatePenerbit(id: Int, penerbit: Penerbit) {
+        try {
+            penerbitApiService.updatePenerbit(id, penerbit)
+        } catch (e: Exception) {
+            throw IOException("Failed to update penerbit", e)
+        }
+    }
+
+    override suspend fun deletePenerbit(id: Int) {
+        try {
+            penerbitApiService.deletePenerbit(id)
+        } catch (e: Exception) {
+            throw IOException("Failed to delete penerbit", e)
+        }
+    }
+
+    override suspend fun getPenerbit(): PenerbitResponse {
+        return try {
+            penerbitApiService.getPenerbit()
+        } catch (e: Exception) {
+            throw IOException("Failed to fetch penerbit", e)
+        }
+    }
+
+    override suspend fun getPenerbitById(id: Int): Penerbit {
+        return try {
+            penerbitApiService.getPenerbitById(id).data
+        } catch (e: Exception) {
+            throw IOException("Failed to fetch penerbit by id", e)
+        }
+    }
+}
+
