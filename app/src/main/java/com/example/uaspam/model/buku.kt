@@ -13,5 +13,12 @@ data class Buku (
     val id_penulis: Int,
     val id_penerbit: Int,
 )
+@Serializable
+data class BukuResponse(
+    val status: Boolean,
+    val message: String,
+    val data: List<Buku>
+)
+
 
 
