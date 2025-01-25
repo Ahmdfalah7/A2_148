@@ -23,3 +23,5 @@ data class KategoriDetailResponse(
     val message: String,
     val data: Kategori
 )
+
+
