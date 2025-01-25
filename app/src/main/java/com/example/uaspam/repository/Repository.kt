@@ -138,3 +138,47 @@ class NetworkPenerbitRepository(
     }
 }
 
+interface PenulisRepository {
+    suspend fun getPenulis(): PenulisResponse
+    suspend fun insertPenulis(penulis: Penulis)
+    suspend fun updatePenulis(id: Int, penulis: Penulis)
+    suspend fun deletePenulis(id: Int)
+    suspend fun getPenulisById(id: Int): Penulis
+}
+
+
+class NetworkPenulisRepository(
+    private val penulisApiService: PenulisService
+) : PenulisRepository {
+    override suspend fun insertPenulis(penulis: Penulis) {
+        penulisApiService.insertPenulis(penulis)
+    }
+
+    override suspend fun updatePenulis(id: Int, penulis: Penulis) {
+        penulisApiService.updatePenulis(id, penulis)
+    }
+
+    override suspend fun deletePenulis(id: Int) {
+        try {
+            penulisApiService.deletePenulis(id)
+        } catch (e: Exception) {
+            throw IOException("Failed to delete penulis", e)
+        }
+    }
+
+    override suspend fun getPenulis(): PenulisResponse {
+        return try {
+            penulisApiService.getPenulis() // Mengambil response dari API
+        } catch (e: Exception) {
+            throw IOException("Failed to fetch penulis", e)
+        }
+    }
+
+    override suspend fun getPenulisById(id: Int): Penulis {
+        return try {
+            penulisApiService.getPenulisById(id).data // Mengambil penulis berdasarkan ID
+        } catch (e: Exception) {
+            throw IOException("Failed to fetch penulis by ID", e)
+        }
+    }
+}
