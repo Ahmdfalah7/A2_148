@@ -9,4 +9,17 @@ data class Penulis(
     val biografi: String,
     val kontak: String
 )
+@Serializable
+data class PenulisResponse(
+    val status: Boolean,
+    val message: String,
+    val data: List<Penulis>
+)
 
+
+@Serializable
+data class PenulisDetailResponse(
+    val status: Boolean,
+    val message: String,
+    val data: Penulis
+)
