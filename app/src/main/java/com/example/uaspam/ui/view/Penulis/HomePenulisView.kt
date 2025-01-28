@@ -1,5 +1,6 @@
 package com.example.uaspam.ui.view.Penulis
 
+import com.example.uaspam.ui.navigasi.DestinasiNavigasi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -23,6 +24,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.uaspam.R
@@ -32,7 +34,6 @@ import com.example.uaspam.ui.viewmodel.Penulis.HomePenulisViewModel
 import com.example.uaspam.customwidget.CustomTopAppBar
 import com.example.uaspam.customwidget.MenuButton
 import com.example.uaspam.ui.PenyediaViewModel
-import com.example.uaspam.ui.navigasi.DestinasiNavigasi
 
 object DestinasiPenulisHome : DestinasiNavigasi {
     override val route = "penulis_home"
@@ -42,16 +43,17 @@ object DestinasiPenulisHome : DestinasiNavigasi {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PenulisHomeScreen(
+    navigateToItemEntry: () -> Unit,
     navigateToBuku: () -> Unit,
     navigateToKategori: () -> Unit,
     navigateToPenerbit: () -> Unit,
     navigateToPenulis: () -> Unit,
-    navigateToItemEntry: () -> Unit,
     modifier: Modifier = Modifier,
     onDetailClick: (String) -> Unit = {},
     viewModel: HomePenulisViewModel = viewModel(factory = PenyediaViewModel.Factory)
 ) {
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
+
     Scaffold(
         modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
@@ -68,8 +70,9 @@ fun PenulisHomeScreen(
             FloatingActionButton(
                 onClick = navigateToItemEntry,
                 shape = MaterialTheme.shapes.medium,
-                modifier = Modifier.padding(18.dp),
-                containerColor = MaterialTheme.colorScheme.primary // Menggunakan warna utama untuk FAB
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary,
+                modifier = Modifier.padding(18.dp)
             ) {
                 Icon(imageVector = Icons.Default.Add, contentDescription = "Add Penulis")
             }
@@ -80,22 +83,34 @@ fun PenulisHomeScreen(
                 onKategoriClick = navigateToKategori,
                 onPenerbitClick = navigateToPenerbit,
                 onPenulisClick = navigateToPenulis,
-                modifier = Modifier.background(Color(0xFF001F3F)).fillMaxWidth().padding(8.dp)// Menyesuaikan warna background
+                modifier = Modifier
+                    .background(Color(0xFF001F3F))
+                    .fillMaxWidth()
+                    .padding(8.dp)
             )
         }
     ) { innerPadding ->
-        PenulisHomeStatus(
-            penulisUiState = viewModel.penulisUiState,
-            retryAction = { viewModel.getPenulis() },
+        Box(
             modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(Color(0xFF6A1B9A), Color(0xFF3949AB))
+                    )
+                )
                 .padding(innerPadding)
-                .padding(top = 56.dp), // Menambahkan padding untuk memberi ruang pada TopAppBar
-            onDetailClick = onDetailClick,
-            onDeleteClick = {
-                viewModel.deletePenulis(it.id_penulis)
-                viewModel.getPenulis()
-            }
-        )
+        ) {
+            PenulisHomeStatus(
+                penulisUiState = viewModel.penulisUiState,
+                retryAction = { viewModel.getPenulis() },
+                modifier = Modifier.padding(16.dp),
+                onDetailClick = onDetailClick,
+                onDeleteClick = {
+                    viewModel.deletePenulis(it.id_penulis)
+                    viewModel.getPenulis()
+                }
+            )
+        }
     }
 }
 
@@ -111,42 +126,23 @@ fun PenulisHomeStatus(
         is HomePenulisUiState.Loading -> OnLoading(modifier = modifier.fillMaxSize())
         is HomePenulisUiState.Success -> {
             if (penulisUiState.penulis.isEmpty()) {
-                return Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text(text = "Tidak Ada Data Penulis", color = MaterialTheme.colorScheme.onBackground)
+                Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text(
+                        text = "Tidak Ada Data Penulis",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
                 }
             } else {
                 PenulisLayout(
-                    penulis = penulisUiState.penulis, modifier = modifier.fillMaxWidth(),
+                    penulis = penulisUiState.penulis,
+                    modifier = modifier.fillMaxWidth(),
                     onDetailClick = { onDetailClick(it.id_penulis.toString()) },
                     onDeleteClick = { onDeleteClick(it) }
                 )
             }
         }
         is HomePenulisUiState.Error -> OnError(retryAction, modifier = modifier.fillMaxSize())
-    }
-}
-
-@Composable
-fun OnLoading(modifier: Modifier = Modifier) {
-    Image(
-        modifier = modifier.size(200.dp),
-        painter = painterResource(R.drawable.loading1),
-        contentDescription = stringResource(R.string.loading)
-    )
-}
-
-@Composable
-fun OnError(retryAction: () -> Unit, modifier: Modifier = Modifier) {
-    Column(
-        modifier = modifier,
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Image(painter = painterResource(id = R.drawable.error), contentDescription = "")
-        Text(text = stringResource(R.string.loading_failed), modifier = Modifier.padding(16.dp), color = MaterialTheme.colorScheme.onBackground)
-        Button(onClick = retryAction) {
-            Text(stringResource(R.string.retry))
-        }
     }
 }
 
@@ -195,50 +191,44 @@ fun PenulisCard(
     Card(
         modifier = modifier,
         shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Color.White.copy(alpha = 0.9f)
+        ),
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
     ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(
-                    Brush.horizontalGradient(
-                        colors = listOf(
-                            Color(0xFF1A237E), // Biru gelap
-                            Color(0xFF3949AB)  // Biru terang
-                        )
-                    )
-                )
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Column(
-                modifier = Modifier.padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = penulis.nama_penulis,
-                        style = MaterialTheme.typography.titleLarge.copy(color = Color.White),
-                        modifier = Modifier.weight(1f)
+                Text(
+                    text = penulis.nama_penulis,
+                    style = MaterialTheme.typography.titleLarge,
+                    color = Color(0xFF3949AB),
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(Modifier.weight(1f))
+                IconButton(onClick = { showDialog = true }) {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.error
                     )
-                    IconButton(onClick = { showDialog = true }) {
-                        Icon(
-                            imageVector = Icons.Default.Delete,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.error // Warna ikon delete sesuai dengan tema error
-                        )
-                    }
                 }
-                Text(
-                    text = penulis.biografi,
-                    style = MaterialTheme.typography.bodyMedium.copy(color = Color.White)
-                )
-                Text(
-                    text = penulis.kontak,
-                    style = MaterialTheme.typography.bodyMedium.copy(color = Color.White)
-                )
             }
+            Text(
+                text = penulis.biografi,
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color.Gray
+            )
+            Text(
+                text = penulis.kontak,
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color.Gray
+            )
         }
     }
 }
@@ -251,18 +241,52 @@ private fun DeleteConfirmationDialog(
 ) {
     AlertDialog(
         onDismissRequest = {},
-        title = { Text("Delete Data") },
-        text = { Text("Apakah anda yakin ingin menghapus data?") },
+        title = { Text("Hapus Penulis") },
+        text = { Text("Apakah Anda yakin ingin menghapus penulis ini?") },
         modifier = modifier,
         dismissButton = {
             TextButton(onClick = onDeleteCancel) {
-                Text(text = "Cancel")
+                Text(text = "Batal")
             }
         },
         confirmButton = {
             TextButton(onClick = onDeleteConfirm) {
-                Text(text = "Yes")
+                Text(text = "Hapus")
             }
         }
     )
+}
+
+@Composable
+fun OnLoading(modifier: Modifier = Modifier) {
+    Box(
+        modifier = modifier,
+        contentAlignment = Alignment.Center
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.loading1),
+            contentDescription = stringResource(R.string.loading),
+            modifier = Modifier.size(100.dp)
+        )
+    }
+}
+
+@Composable
+fun OnError(retryAction: () -> Unit, modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Image(painter = painterResource(id = R.drawable.error), contentDescription = null)
+        Text(
+            text = stringResource(R.string.loading_failed),
+            modifier = Modifier.padding(16.dp),
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.error
+        )
+        Button(onClick = retryAction) {
+            Text(stringResource(R.string.retry))
+        }
+    }
 }
