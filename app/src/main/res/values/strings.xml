@@ -3,4 +3,7 @@
     <string name="loading">Loading</string>
     <string name="loading_failed">loading_failed</string>
     <string name="retry">retry</string>
+    <string name="kategori">kategori</string>
+    <string name="penerbit">penerbit\n</string>
+    <string name="penulis">penulis</string>
 </resources>

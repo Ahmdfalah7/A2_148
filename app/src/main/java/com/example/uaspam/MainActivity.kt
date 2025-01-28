@@ -20,12 +20,12 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             UasPAMTheme {
+                // Tidak perlu lagi membuat NavController di sini
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    BukuApp(
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                    BukuApp(modifier = Modifier.padding(innerPadding)) // Hanya oper modifier
                 }
             }
         }
     }
 }
+
